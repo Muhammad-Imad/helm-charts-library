@@ -1,0 +1,47 @@
+suite: worker scaling
+templates:
+  - templates/deployment.yaml
+  - templates/scaledobject.yaml
+  - templates/hpa.yaml
+tests:
+  - it: renders a KEDA ScaledObject by default
+    template: templates/scaledobject.yaml
+    set:
+      image.repository: ghcr.io/acme/worker
+    asserts:
+      - isKind:
+          of: ScaledObject
+      - equal:
+          path: spec.maxReplicaCount
+          value: 20
+
+  - it: does not render an HPA when KEDA is enabled
+    template: templates/hpa.yaml
+    set:
+      keda.enabled: true
+      autoscaling.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders an HPA on the custom metric when KEDA is disabled
+    template: templates/hpa.yaml
+    set:
+      keda.enabled: false
+      autoscaling.enabled: true
+    asserts:
+      - isKind:
+          of: HorizontalPodAutoscaler
+      - equal:
+          path: spec.metrics[0].pods.metric.name
+          value: queue_messages_per_pod
+
+  - it: renders a Deployment with no Service port exposure expectations
+    template: templates/deployment.yaml
+    set:
+      image.repository: ghcr.io/acme/worker
+    asserts:
+      - isKind:
+          of: Deployment
+      - notExists:
+          path: spec.template.spec.containers[0].ports

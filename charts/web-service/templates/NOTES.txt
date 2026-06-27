@@ -1,0 +1,17 @@
+{{ include "common.fullname" . }} has been deployed.
+
+{{- if .Values.ingress.enabled }}
+
+Reachable via Ingress:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else if eq .Values.service.type "ClusterIP" }}
+
+Port-forward to reach the service locally:
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "common.fullname" . }} 8080:{{ .Values.service.port }}
+  Then open http://127.0.0.1:8080
+{{- end }}
+
+Check rollout status:
+  kubectl --namespace {{ .Release.Namespace }} rollout status deployment/{{ include "common.fullname" . }}

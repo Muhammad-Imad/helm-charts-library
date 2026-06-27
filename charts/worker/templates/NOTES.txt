@@ -1,0 +1,17 @@
+{{ include "common.fullname" . }} worker has been deployed.
+
+{{- if .Values.keda.enabled }}
+
+Autoscaling: KEDA ScaledObject (min={{ .Values.keda.minReplicaCount }}, max={{ .Values.keda.maxReplicaCount }}).
+Inspect it with:
+  kubectl --namespace {{ .Release.Namespace }} get scaledobject {{ include "common.fullname" . }}
+{{- else if .Values.autoscaling.enabled }}
+
+Autoscaling: HPA on custom metric "{{ .Values.autoscaling.metricName }}".
+{{- else }}
+
+Static replicas: {{ .Values.replicaCount }}.
+{{- end }}
+
+View logs:
+  kubectl --namespace {{ .Release.Namespace }} logs -l app.kubernetes.io/instance={{ .Release.Name }} -f

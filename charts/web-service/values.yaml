@@ -1,0 +1,187 @@
+# Default values for web-service.
+# Values that begin with `common.*` keys are consumed by the shared library chart.
+
+# -- Number of replicas (ignored when autoscaling.enabled is true).
+replicaCount: 2
+
+# -- Override the chart name used in resource names.
+nameOverride: ""
+# -- Override the full release-qualified resource name.
+fullnameOverride: ""
+# -- `app.kubernetes.io/part-of` label value.
+partOf: "platform"
+
+image:
+  # -- Optional registry prefix (e.g. ghcr.io/acme). Falls back to global.imageRegistry.
+  registry: "ghcr.io/acme"
+  # -- Image repository (required).
+  repository: web
+  # -- Image tag. Defaults to the chart appVersion when empty.
+  tag: ""
+  # -- Image pull policy.
+  pullPolicy: IfNotPresent
+
+# -- Pull secrets for private registries.
+imagePullSecrets: []
+# - name: regcred
+
+# -- Extra labels applied to every rendered object.
+commonLabels: {}
+# -- Extra annotations applied to every rendered object.
+commonAnnotations: {}
+
+serviceAccount:
+  # -- Create a dedicated ServiceAccount.
+  create: true
+  # -- Name to use; generated from fullname when empty.
+  name: ""
+  # -- Annotations (e.g. IRSA / Workload Identity bindings).
+  annotations: {}
+  # -- Mount the SA token into pods.
+  automountServiceAccountToken: false
+
+# -- Plain environment variables (key/value map).
+env:
+  LOG_LEVEL: info
+  PORT: "8080"
+# -- envFrom sources (configMapRef / secretRef).
+envFrom: []
+
+# -- Application config rendered into a ConfigMap and mounted / referenced.
+config:
+  # -- Toggle ConfigMap creation.
+  enabled: true
+  # -- Arbitrary key/value data placed in the ConfigMap.
+  data:
+    app.properties: |
+      feature.flags=default
+      request.timeout=30s
+
+service:
+  # -- Service type.
+  type: ClusterIP
+  # -- Service port exposed to the cluster.
+  port: 80
+  # -- Container port the application listens on.
+  targetPort: 8080
+  # -- Optional annotations.
+  annotations: {}
+
+ingress:
+  # -- Toggle Ingress creation.
+  enabled: false
+  # -- IngressClass name.
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: web.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: web-tls
+  #    hosts:
+  #      - web.example.com
+
+# -- Container resource requests/limits.
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  # -- Toggle HorizontalPodAutoscaler.
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  # -- Target average CPU utilization (percent).
+  targetCPUUtilizationPercentage: 70
+  # -- Target average memory utilization (percent); omit to disable.
+  targetMemoryUtilizationPercentage: 80
+
+podDisruptionBudget:
+  # -- Toggle PodDisruptionBudget.
+  enabled: true
+  # -- Minimum available pods (mutually exclusive with maxUnavailable).
+  minAvailable: 1
+  # maxUnavailable: ""
+
+# -- Pod-level security context.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Container-level security context.
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+probes:
+  liveness:
+    enabled: true
+    httpGet:
+      path: /healthz
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  readiness:
+    enabled: true
+    httpGet:
+      path: /readyz
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  startup:
+    enabled: false
+    httpGet:
+      path: /healthz
+      port: http
+    failureThreshold: 30
+    periodSeconds: 5
+
+networkPolicy:
+  # -- Toggle a NetworkPolicy that restricts ingress to the pods.
+  enabled: false
+  # -- Allowed ingress sources (namespaceSelector/podSelector blocks).
+  ingress: []
+
+externalSecret:
+  # -- Toggle an External Secrets Operator ExternalSecret resource.
+  enabled: false
+  # -- Name of the ClusterSecretStore / SecretStore.
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  # -- Mapping of k8s secret keys to remote keys.
+  data: []
+  #  - secretKey: DB_PASSWORD
+  #    remoteRef:
+  #      key: prod/web/db
+  #      property: password
+
+# -- Number of seconds to wait for graceful shutdown.
+terminationGracePeriodSeconds: 30
+
+# -- Extra volumes / volumeMounts (e.g. a writable /tmp when readOnlyRootFilesystem).
+volumes:
+  - name: tmp
+    emptyDir: {}
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+
+# -- Scheduling controls.
+nodeSelector: {}
+affinity: {}
+tolerations: []
+topologySpreadConstraints: []

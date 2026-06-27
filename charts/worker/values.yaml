@@ -1,0 +1,122 @@
+# Default values for worker.
+# A worker runs no inbound listener: there is no Service, Ingress or HTTP probe.
+# It is scaled on a queue depth metric (KEDA) or a custom HPA metric.
+
+# -- Static replica count (used when neither autoscaling nor KEDA is enabled).
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+# -- `app.kubernetes.io/part-of` label value.
+partOf: "platform"
+
+image:
+  registry: "ghcr.io/acme"
+  # -- Image repository (required).
+  repository: worker
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+commonLabels: {}
+commonAnnotations: {}
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+  automountServiceAccountToken: false
+
+# -- Command/args override for the worker process.
+command: []
+args: []
+
+# -- Plain environment variables.
+env:
+  LOG_LEVEL: info
+  QUEUE_NAME: jobs
+# -- envFrom sources (configMapRef / secretRef).
+envFrom: []
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+# KEDA-based autoscaling on queue depth. Mutually exclusive with `autoscaling`.
+keda:
+  # -- Toggle a KEDA ScaledObject (requires KEDA installed in-cluster).
+  enabled: true
+  minReplicaCount: 0
+  maxReplicaCount: 20
+  # -- Seconds of inactivity before scaling back down.
+  cooldownPeriod: 300
+  pollingInterval: 30
+  # -- KEDA triggers. Default illustrates a generic queue-depth trigger.
+  triggers:
+    - type: aws-sqs-queue
+      metadata:
+        queueURL: https://sqs.us-east-1.amazonaws.com/000000000000/jobs
+        queueLength: "20"
+        awsRegion: us-east-1
+      authenticationRef:
+        name: keda-aws-credentials
+
+# Plain HPA on a custom Pods metric. Used only when keda.enabled is false.
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  # -- Custom Pods metric name (served by a metrics adapter).
+  metricName: queue_messages_per_pod
+  # -- Target average value of the custom metric per pod.
+  targetAverageValue: "30"
+
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+  # minAvailable: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Workers usually expose no HTTP server. A liveness probe can still run an exec
+# health check; disabled by default.
+probes:
+  liveness:
+    enabled: false
+    exec:
+      command: ["sh", "-c", "test -f /tmp/healthy"]
+    periodSeconds: 30
+  readiness:
+    enabled: false
+
+# -- Seconds to allow in-flight jobs to drain before SIGKILL.
+terminationGracePeriodSeconds: 60
+
+volumes:
+  - name: tmp
+    emptyDir: {}
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+
+nodeSelector: {}
+affinity: {}
+tolerations: []
+topologySpreadConstraints: []

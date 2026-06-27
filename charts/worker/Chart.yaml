@@ -1,0 +1,21 @@
+apiVersion: v2
+name: worker
+description: An application chart for a queue/async worker — Deployment (no Service/Ingress), PodDisruptionBudget, ServiceAccount, and autoscaling via HPA or an optional KEDA ScaledObject on a custom queue metric.
+type: application
+version: 1.1.0
+appVersion: "1.0.0"
+kubeVersion: ">=1.25.0-0"
+keywords:
+  - worker
+  - queue
+  - async
+  - keda
+maintainers:
+  - name: Muhammad Imad
+home: https://github.com/acme/helm-charts-library
+sources:
+  - https://github.com/acme/helm-charts-library
+dependencies:
+  - name: common
+    version: "0.3.x"
+    repository: "file://../common"

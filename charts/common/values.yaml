@@ -1,0 +1,40 @@
+# The common library chart renders no Kubernetes objects of its own.
+# This file documents the value keys that the shared helpers in
+# templates/_helpers.tpl expect to find on a CONSUMING chart's `.Values`.
+#
+# Application charts (web-service, worker) provide concrete defaults for these.
+# They are listed here purely as reference / documentation.
+
+# nameOverride: ""
+# fullnameOverride: ""
+# partOf: ""
+
+# commonLabels: {}
+# commonAnnotations: {}
+
+# global:
+#   imageRegistry: ""
+#   imagePullSecrets: []
+
+# image:
+#   registry: ""
+#   repository: ""
+#   tag: ""
+#   pullPolicy: IfNotPresent
+
+# imagePullSecrets: []
+
+# serviceAccount:
+#   create: true
+#   name: ""
+
+# env: {}
+# envFrom: []
+# resources: {}
+# probes: {}
+# podSecurityContext: {}
+# securityContext: {}
+# nodeSelector: {}
+# affinity: {}
+# tolerations: []
+# topologySpreadConstraints: []

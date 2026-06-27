@@ -1,0 +1,17 @@
+# Helm
+charts/*/charts/
+charts/*/Chart.lock
+*.tgz
+.cr-release-packages/
+.cr-index/
+rendered/
+
+# Tooling
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Python (pre-commit venvs etc.)
+.venv/
+__pycache__/

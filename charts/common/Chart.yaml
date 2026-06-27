@@ -1,0 +1,16 @@
+apiVersion: v2
+name: common
+description: A Helm library chart providing reusable named templates (helpers) for labels, images, probes, resources and security contexts shared across application charts.
+type: library
+version: 0.3.0
+# appVersion is intentionally omitted for library charts.
+keywords:
+  - library
+  - helpers
+  - platform
+  - templates
+maintainers:
+  - name: Muhammad Imad
+home: https://github.com/acme/helm-charts-library
+sources:
+  - https://github.com/acme/helm-charts-library

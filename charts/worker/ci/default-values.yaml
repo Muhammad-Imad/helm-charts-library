@@ -1,0 +1,9 @@
+# chart-testing (ct) install values for worker.
+image:
+  repository: ghcr.io/acme/worker
+  tag: "1.0.0"
+# Disable KEDA in CI since the CRDs are not installed in the kind cluster.
+keda:
+  enabled: false
+autoscaling:
+  enabled: true

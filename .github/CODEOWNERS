@@ -1,0 +1,8 @@
+# Default owners for everything in the repo.
+*                       @acme/platform-engineering
+
+# The shared library chart is high-blast-radius: require a library maintainer.
+/charts/common/         @acme/platform-engineering @acme/chart-librarians
+
+# Release and CI automation.
+/.github/               @acme/platform-engineering

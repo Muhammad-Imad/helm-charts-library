@@ -1,0 +1,13 @@
+# chart-testing (ct) install values for web-service.
+image:
+  repository: ghcr.io/acme/web
+  tag: "1.0.0"
+ingress:
+  enabled: true
+  hosts:
+    - host: web.ci.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+networkPolicy:
+  enabled: true
