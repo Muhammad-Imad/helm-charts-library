@@ -21,7 +21,7 @@ spec:
         {{- include "common.selectorLabels" . | nindent 8 }}
       annotations:
         {{- if .Values.config.enabled }}
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ .Values.config.data | toYaml | sha256sum }}
         {{- end }}
         {{- with (include "common.annotations" .) }}
         {{- . | nindent 8 }}
