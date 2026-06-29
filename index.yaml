@@ -1,2 +1,31 @@
 apiVersion: v1
-entries: {}
+entries:
+  web-service:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-06-29T15:06:15.200118584Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.3.x
+    description: An opinionated application chart for a stateless HTTP microservice
+      — Deployment, Service, Ingress, HPA, PodDisruptionBudget, ServiceAccount, ConfigMap,
+      NetworkPolicy and optional ExternalSecret.
+    digest: 1678af5bae776ed241842d55d8b3e44faa17a103218881294345c3f24e7404ed
+    home: https://github.com/acme/helm-charts-library
+    keywords:
+    - http
+    - microservice
+    - web
+    - deployment
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - name: Muhammad Imad
+    name: web-service
+    sources:
+    - https://github.com/acme/helm-charts-library
+    type: application
+    urls:
+    - https://github.com/Muhammad-Imad/helm-charts-library/releases/download/web-service-1.2.0/web-service-1.2.0.tgz
+    version: 1.2.0
+generated: "2026-06-29T15:06:15.200124403Z"
